@@ -11,7 +11,7 @@ st.set_page_config(
 )
 
 CSV_FILE = "contagem_bar.csv"
-PRODUTOS_FILE = "lista_teste.csv"
+PRODUTOS_FILE = "Lista_teste.csv"
 SETOR = "Bar"
 
 # ── FUNÇÕES ─────────────────────────────────────────────
