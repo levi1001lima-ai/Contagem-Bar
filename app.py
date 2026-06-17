@@ -22,7 +22,7 @@ def carregar_dados():
 
 def carregar_produtos():
     if os.path.exists(PRODUTOS_FILE):
-        df = pd.read_csv(PRODUTOS_FILE)
+        df = pd.read_csv(PRODUTOS_FILE, sep = None, engine='python')
         df.columns = df.columns.str.strip()
         return df
     return pd.DataFrame(columns=["Produto", "Descrição", "Unidade"])
