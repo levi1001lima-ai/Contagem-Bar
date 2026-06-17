@@ -22,7 +22,7 @@ def carregar_dados():
 
 def carregar_produtos():
     if os.path.exists(PRODUTOS_FILE):
-        df = pd.read_csv(PRODUTOS_FILE, sep=None, engine='python')
+        df = pd.read_csv(PRODUTOS_FILE)
         df.columns = df.columns.str.strip()
         return df
     return pd.DataFrame(columns=["Produto", "Descrição", "Unidade"])
@@ -58,9 +58,35 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
+# ── SESSION STATE: nome do contador ──────────────────────
+if "contador" not in st.session_state:
+    st.session_state.contador = ""
+
+# ── TELA DE IDENTIFICAÇÃO (só aparece se ainda não tem nome) ──
+if not st.session_state.contador:
+    st.markdown('<div class="titulo">🍹 Contagem Bar</div>', unsafe_allow_html=True)
+    st.markdown('<div class="subtitulo">Quem está contando hoje?</div>', unsafe_allow_html=True)
+
+    with st.form("form_identificacao"):
+        nome = st.text_input("Seu nome", placeholder="Ex: João")
+        entrar = st.form_submit_button("▶ Começar a contar", use_container_width=True, type="primary")
+        if entrar:
+            if nome.strip():
+                st.session_state.contador = nome.strip()
+                st.rerun()
+            else:
+                st.error("Informe seu nome para continuar!")
+    st.stop()
+
 # ── HEADER ───────────────────────────────────────────────
-st.markdown('<div class="titulo">🍹 Contagem Bar</div>', unsafe_allow_html=True)
-st.markdown('<div class="subtitulo">Registre os itens contados</div>', unsafe_allow_html=True)
+col_h1, col_h2 = st.columns([4, 1])
+with col_h1:
+    st.markdown('<div class="titulo">🍹 Contagem Bar</div>', unsafe_allow_html=True)
+    st.markdown(f'<div class="subtitulo">Contando como: <b>{st.session_state.contador}</b></div>', unsafe_allow_html=True)
+with col_h2:
+    if st.button("Trocar"):
+        st.session_state.contador = ""
+        st.rerun()
 
 # ── TABS ─────────────────────────────────────────────────
 aba1, aba2, aba3 = st.tabs(["➕ Adicionar", "📋 Lista", "📊 Resumo"])
@@ -76,8 +102,6 @@ with aba1:
     ]
 
     with st.form("form_contagem", clear_on_submit=True):
-        contador = st.text_input("Seu nome", placeholder="Ex: João")
-
         selecao = st.selectbox("Produto", options=opcoes, index=0)
 
         # Preenche unidade automaticamente ao selecionar produto
@@ -102,13 +126,11 @@ with aba1:
         submitted = st.form_submit_button("✅ Adicionar item", use_container_width=True, type="primary")
 
         if submitted:
-            if not contador:
-                st.error("Informe seu nome!")
-            elif not selecao:
+            if not selecao:
                 st.error("Selecione um produto!")
             else:
                 nome_produto = selecao.split(" - ", 1)[1] if " - " in selecao else selecao
-                salvar_item(contador, codigo_auto, nome_produto, quantidade, unidade, observacao)
+                salvar_item(st.session_state.contador, codigo_auto, nome_produto, quantidade, unidade, observacao)
                 st.success(f"✓ **{nome_produto}** adicionado!")
                 st.balloons()
 
@@ -177,5 +199,3 @@ with aba3:
             use_container_width=True,
             type="primary"
         )
-        
-    
